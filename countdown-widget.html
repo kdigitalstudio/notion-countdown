@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .countdown-container {
+            width: 100%;
+        }
+
+        .event-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .countdown {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .time-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 80px;
+        }
+
+        .time-value {
+            font-size: 48px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .time-value.with-bg {
+            padding: 15px 20px;
+            border-radius: 12px;
+        }
+
+        .time-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.6;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .completed {
+            font-size: 36px;
+            font-weight: 700;
+        }
+
+        /* Confetti styles */
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confetti-fall 3s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown-container">
+        <div class="event-name" id="event-name">Loading...</div>
+        <div class="countdown" id="countdown"></div>
+    </div>
+
+    <script>
+        // Get URL parameters
+        const params = new URLSearchParams(window.location.search);
+        
+        // Parse all settings
+        const eventName = params.get('event') || 'My Event';
+        const dateStr = params.get('date');
+        const timeStr = params.get('time') || '00:00';
+        
+        const settings = {
+            digitFont: params.get('digitFont') || 'default',
+            textAlign: params.get('textAlign') || 'center',
+            textColor: params.get('textColor') || '#37352F',
+            bgColor: params.get('bgColor') || '#FFFFFF',
+            showDigitBg: params.get('showDigitBg') === 'true',
+            digitBgColor: params.get('digitBgColor') || '#F7FAFC',
+            stopAtZero: params.get('stopAtZero') !== 'false',
+            showConfetti: params.get('showConfetti') === 'true',
+            showYear: params.get('showYear') === 'true',
+            showMonth: params.get('showMonth') === 'true',
+            showWeek: params.get('showWeek') === 'true',
+            showDay: params.get('showDay') !== 'false',
+            showHour: params.get('showHour') === 'true',
+            showMinute: params.get('showMinute') === 'true',
+            showSecond: params.get('showSecond') === 'true'
+        };
+
+        // Apply styles
+        document.body.style.background = settings.bgColor;
+        document.body.style.color = settings.textColor;
+        
+        const container = document.querySelector('.countdown-container');
+        container.style.textAlign = settings.textAlign;
+        
+        const eventNameEl = document.getElementById('event-name');
+        eventNameEl.textContent = eventName;
+        
+        const countdownEl = document.getElementById('countdown');
+        countdownEl.style.justifyContent = 
+            settings.textAlign === 'left' ? 'flex-start' : 
+            settings.textAlign === 'right' ? 'flex-end' : 
+            'center';
+
+        // Apply digit font
+        const fontFamily = 
+            settings.digitFont === 'serif' ? 'Georgia, serif' : 
+            settings.digitFont === 'mono' ? "'Courier New', monospace" : 
+            '-apple-system, sans-serif';
+        
+        // Parse target date
+        let targetDate;
+        if (dateStr) {
+            targetDate = new Date(`${dateStr}T${timeStr}`);
+        } else {
+            // Default to 30 days from now if no date provided
+            targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 30);
+        }
+
+        let confettiShown = false;
+
+        function createConfetti() {
+            if (confettiShown) return;
+            confettiShown = true;
+
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 30);
+            }
+        }
+
+        function updateCountdown() {
+            const now = new Date();
+            let difference = targetDate - now;
+            
+            if (difference <= 0) {
+                if (settings.stopAtZero) {
+                    const confettiEmoji = settings.showConfetti ? '🎉 ' : '';
+                    countdownEl.innerHTML = `<div class="completed">${confettiEmoji}Event Day!${confettiEmoji ? ' 🎉' : ''}</div>`;
+                    if (settings.showConfetti) {
+                        createConfetti();
+                    }
+                    return;
+                }
+                difference = Math.abs(difference);
+            }
+
+            // Calculate total values for each unit
+            const totalYears = Math.floor(difference / (1000 * 60 * 60 * 24 * 365));
+            const totalMonths = Math.floor(difference / (1000 * 60 * 60 * 24 * 30));
+            const totalWeeks = Math.floor(difference / (1000 * 60 * 60 * 24 * 7));
+            const totalDays = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const totalHours = Math.floor(difference / (1000 * 60 * 60));
+            const totalMinutes = Math.floor(difference / (1000 * 60));
+            const totalSeconds = Math.floor(difference / 1000);
+
+            // Count how many units are being displayed
+            const unitsShown = [
+                settings.showYear,
+                settings.showMonth,
+                settings.showWeek,
+                settings.showDay,
+                settings.showHour,
+                settings.showMinute,
+                settings.showSecond
+            ].filter(Boolean).length;
+
+            let years, months, weeks, days, hours, minutes, seconds;
+
+            if (unitsShown === 1) {
+                // If only one unit is shown, display the total for that unit
+                years = totalYears;
+                months = totalMonths;
+                weeks = totalWeeks;
+                days = totalDays;
+                hours = totalHours;
+                minutes = totalMinutes;
+                seconds = totalSeconds;
+            } else {
+                // If multiple units are shown, calculate remainders
+                let remaining = difference;
+                years = Math.floor(remaining / (1000 * 60 * 60 * 24 * 365));
+                remaining = remaining % (1000 * 60 * 60 * 24 * 365);
+                
+                months = Math.floor(remaining / (1000 * 60 * 60 * 24 * 30));
+                remaining = remaining % (1000 * 60 * 60 * 24 * 30);
+                
+                weeks = Math.floor(remaining / (1000 * 60 * 60 * 24 * 7));
+                remaining = remaining % (1000 * 60 * 60 * 24 * 7);
+                
+                days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+                remaining = remaining % (1000 * 60 * 60 * 24);
+                
+                hours = Math.floor(remaining / (1000 * 60 * 60));
+                remaining = remaining % (1000 * 60 * 60);
+                
+                minutes = Math.floor(remaining / (1000 * 60));
+                remaining = remaining % (1000 * 60);
+                
+                seconds = Math.floor(remaining / 1000);
+            }
+
+            let html = '';
+            
+            const bgClass = settings.showDigitBg ? ' with-bg' : '';
+            const bgStyle = settings.showDigitBg ? ` style="font-family: ${fontFamily}; background: ${settings.digitBgColor};"` : ` style="font-family: ${fontFamily}"`;
+            
+            if (settings.showYear) {
+                html += `<div class="time-unit">
+                    <span class="time-value${bgClass}"${bgStyle}>${years}</span>
+                    <span class="time-label">${years === 1 ? 'Year' : 'Years'}</span>
+                </div>`;
+            }
+            
+            if (settings.showMonth) {
+                html += `<div class="time-unit">
+                    <span class="time-value${bgClass}"${bgStyle}>${months}</span>
+                    <span class="time-label">${months === 1 ? 'Month' : 'Months'}</span>
+                </div>`;
+            }
+            
+            if (settings.showWeek) {
+                html += `<div class="time-unit">
+                    <span class="time-value${bgClass}"${bgStyle}>${weeks}</span>
+                    <span class="time-label">${weeks === 1 ? 'Week' : 'Weeks'}</span>
+                </div>`;
+            }
+            
+            if (settings.showDay) {
+                html += `<div class="time-unit">
+                    <span class="time-value${bgClass}"${bgStyle}>${days}</span>
+                    <span class="time-label">${days === 1 ? 'Day' : 'Days'}</span>
+                </div>`;
+            }
+            
+            if (settings.showHour) {
+                html += `<div class="time-unit">
+                    <span class="time-value${bgClass}"${bgStyle}>${hours}</span>
+                    <span class="time-label">${hours === 1 ? 'Hour' : 'Hours'}</span>
+                </div>`;
+            }
+            
+            if (settings.showMinute) {
+                html += `<div class="time-unit">
+                    <span class="time-value${bgClass}"${bgStyle}>${minutes}</span>
+                    <span class="time-label">${minutes === 1 ? 'Minute' : 'Minutes'}</span>
+                </div>`;
+            }
+            
+            if (settings.showSecond) {
+                html += `<div class="time-unit">
+                    <span class="time-value${bgClass}"${bgStyle}>${seconds}</span>
+                    <span class="time-label">${seconds === 1 ? 'Second' : 'Seconds'}</span>
+                </div>`;
+            }
+
+            countdownEl.innerHTML = html;
+        }
+
+        // Update countdown every second
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>
