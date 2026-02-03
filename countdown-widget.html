@@ -107,6 +107,8 @@
             digitFont: params.get('digitFont') || 'default',
             textAlign: params.get('textAlign') || 'center',
             textColor: params.get('textColor') || '#37352F',
+            digitTextColor: params.get('digitTextColor') || '#37352F',
+            labelTextColor: params.get('labelTextColor') || '#718096',
             bgColor: params.get('bgColor') || '#FFFFFF',
             showDigitBg: params.get('showDigitBg') === 'true',
             digitBgColor: params.get('digitBgColor') || '#F7FAFC',
@@ -130,6 +132,7 @@
         
         const eventNameEl = document.getElementById('event-name');
         eventNameEl.textContent = eventName;
+        eventNameEl.style.color = settings.textColor;
         
         const countdownEl = document.getElementById('countdown');
         countdownEl.style.justifyContent = 
@@ -250,54 +253,57 @@
             let html = '';
             
             const bgClass = settings.showDigitBg ? ' with-bg' : '';
-            const bgStyle = settings.showDigitBg ? ` style="font-family: ${fontFamily}; background: ${settings.digitBgColor};"` : ` style="font-family: ${fontFamily}"`;
+            const digitStyle = settings.showDigitBg ? 
+                ` style="font-family: ${fontFamily}; color: ${settings.digitTextColor}; background: ${settings.digitBgColor};"` : 
+                ` style="font-family: ${fontFamily}; color: ${settings.digitTextColor};"`;
+            const labelStyle = ` style="color: ${settings.labelTextColor};"`;
             
             if (settings.showYear) {
                 html += `<div class="time-unit">
-                    <span class="time-value${bgClass}"${bgStyle}>${years}</span>
-                    <span class="time-label">${years === 1 ? 'Year' : 'Years'}</span>
+                    <span class="time-value${bgClass}"${digitStyle}>${years}</span>
+                    <span class="time-label"${labelStyle}>${years === 1 ? 'Year' : 'Years'}</span>
                 </div>`;
             }
             
             if (settings.showMonth) {
                 html += `<div class="time-unit">
-                    <span class="time-value${bgClass}"${bgStyle}>${months}</span>
-                    <span class="time-label">${months === 1 ? 'Month' : 'Months'}</span>
+                    <span class="time-value${bgClass}"${digitStyle}>${months}</span>
+                    <span class="time-label"${labelStyle}>${months === 1 ? 'Month' : 'Months'}</span>
                 </div>`;
             }
             
             if (settings.showWeek) {
                 html += `<div class="time-unit">
-                    <span class="time-value${bgClass}"${bgStyle}>${weeks}</span>
-                    <span class="time-label">${weeks === 1 ? 'Week' : 'Weeks'}</span>
+                    <span class="time-value${bgClass}"${digitStyle}>${weeks}</span>
+                    <span class="time-label"${labelStyle}>${weeks === 1 ? 'Week' : 'Weeks'}</span>
                 </div>`;
             }
             
             if (settings.showDay) {
                 html += `<div class="time-unit">
-                    <span class="time-value${bgClass}"${bgStyle}>${days}</span>
-                    <span class="time-label">${days === 1 ? 'Day' : 'Days'}</span>
+                    <span class="time-value${bgClass}"${digitStyle}>${days}</span>
+                    <span class="time-label"${labelStyle}>${days === 1 ? 'Day' : 'Days'}</span>
                 </div>`;
             }
             
             if (settings.showHour) {
                 html += `<div class="time-unit">
-                    <span class="time-value${bgClass}"${bgStyle}>${hours}</span>
-                    <span class="time-label">${hours === 1 ? 'Hour' : 'Hours'}</span>
+                    <span class="time-value${bgClass}"${digitStyle}>${hours}</span>
+                    <span class="time-label"${labelStyle}>${hours === 1 ? 'Hour' : 'Hours'}</span>
                 </div>`;
             }
             
             if (settings.showMinute) {
                 html += `<div class="time-unit">
-                    <span class="time-value${bgClass}"${bgStyle}>${minutes}</span>
-                    <span class="time-label">${minutes === 1 ? 'Minute' : 'Minutes'}</span>
+                    <span class="time-value${bgClass}"${digitStyle}>${minutes}</span>
+                    <span class="time-label"${labelStyle}>${minutes === 1 ? 'Minute' : 'Minutes'}</span>
                 </div>`;
             }
             
             if (settings.showSecond) {
                 html += `<div class="time-unit">
-                    <span class="time-value${bgClass}"${bgStyle}>${seconds}</span>
-                    <span class="time-label">${seconds === 1 ? 'Second' : 'Seconds'}</span>
+                    <span class="time-value${bgClass}"${digitStyle}>${seconds}</span>
+                    <span class="time-label"${labelStyle}>${seconds === 1 ? 'Second' : 'Seconds'}</span>
                 </div>`;
             }
 
