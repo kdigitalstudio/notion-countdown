@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #E8DFF5 0%, #FCE1E4 100%);
             min-height: 100vh;
             padding: 40px 20px;
         }
@@ -257,19 +257,21 @@
         .generate-btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #E8DFF5 0%, #FCE1E4 100%);
+            color: #453952;
             border: none;
             border-radius: 12px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
             margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .generate-btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
 
         .result-section {
@@ -478,11 +480,31 @@
             </div>
 
             <div class="form-group">
-                <label for="text-color">Text Color</label>
+                <label for="text-color">Event Title Color</label>
                 <div class="color-input-group">
                     <input type="color" id="text-color" value="#37352F">
                     <div class="color-input-wrapper">
                         <div class="color-hex" id="text-color-hex">#37352F</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="digit-text-color">Digit Numbers Color</label>
+                <div class="color-input-group">
+                    <input type="color" id="digit-text-color" value="#37352F">
+                    <div class="color-input-wrapper">
+                        <div class="color-hex" id="digit-text-color-hex">#37352F</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="label-text-color">Labels Color (Days, Hours, etc.)</label>
+                <div class="color-input-group">
+                    <input type="color" id="label-text-color" value="#718096">
+                    <div class="color-input-wrapper">
+                        <div class="color-hex" id="label-text-color-hex">#718096</div>
                     </div>
                 </div>
             </div>
@@ -545,7 +567,7 @@
                 <iframe id="preview-frame" src=""></iframe>
             </div>
 
-            <button type="submit" class="generate-btn">Generate Embed URL</button>
+            <button type="submit" class="generate-btn">Generate</button>
         </form>
 
         <div id="result-section" class="result-section">
@@ -569,7 +591,7 @@
 
     <script>
         // Base URL - UPDATE THIS with your hosted widget URL
-        const WIDGET_BASE_URL = 'https://kdigitalstudio.github.io/notion-countdown/countdown-widget.html';
+        const WIDGET_BASE_URL = 'https://yourdomain.com/countdown-widget.html';
 
         // Get form elements
         const form = document.getElementById('countdown-form');
@@ -590,6 +612,8 @@
             digitFont: 'default',
             textAlign: 'center',
             textColor: '#37352F',
+            digitTextColor: '#37352F',
+            labelTextColor: '#718096',
             bgColor: '#FFFFFF',
             showDigitBg: false,
             digitBgColor: '#F7FAFC',
@@ -633,6 +657,24 @@
         textColorInput.addEventListener('input', function() {
             settings.textColor = this.value;
             textColorHex.textContent = this.value.toUpperCase();
+            updatePreview();
+        });
+
+        const digitTextColorInput = document.getElementById('digit-text-color');
+        const digitTextColorHex = document.getElementById('digit-text-color-hex');
+        
+        digitTextColorInput.addEventListener('input', function() {
+            settings.digitTextColor = this.value;
+            digitTextColorHex.textContent = this.value.toUpperCase();
+            updatePreview();
+        });
+
+        const labelTextColorInput = document.getElementById('label-text-color');
+        const labelTextColorHex = document.getElementById('label-text-color-hex');
+        
+        labelTextColorInput.addEventListener('input', function() {
+            settings.labelTextColor = this.value;
+            labelTextColorHex.textContent = this.value.toUpperCase();
             updatePreview();
         });
 
@@ -735,11 +777,11 @@
                 '* { margin: 0; padding: 0; box-sizing: border-box; }',
                 'body { font-family: -apple-system, sans-serif; background: ' + settings.bgColor + '; color: ' + settings.textColor + '; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }',
                 '.countdown-container { text-align: ' + settings.textAlign + '; width: 100%; }',
-                '.event-name { font-size: 24px; font-weight: 600; margin-bottom: 30px; opacity: 0.9; }',
+                '.event-name { font-size: 24px; font-weight: 600; margin-bottom: 30px; opacity: 0.9; color: ' + settings.textColor + '; }',
                 '.countdown { display: flex; justify-content: ' + justify + '; gap: 20px; flex-wrap: wrap; }',
                 '.time-unit { display: flex; flex-direction: column; align-items: center; min-width: 80px; }',
-                '.time-value { font-size: 48px; font-weight: 700; font-family: ' + fontFamily + '; line-height: 1;' + (settings.showDigitBg ? ' background: ' + settings.digitBgColor + '; padding: 15px 20px; border-radius: 12px;' : '') + ' }',
-                '.time-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-top: 8px; font-weight: 500; }',
+                '.time-value { font-size: 48px; font-weight: 700; font-family: ' + fontFamily + '; line-height: 1; color: ' + settings.digitTextColor + ';' + (settings.showDigitBg ? ' background: ' + settings.digitBgColor + '; padding: 15px 20px; border-radius: 12px;' : '') + ' }',
+                '.time-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-top: 8px; font-weight: 500; color: ' + settings.labelTextColor + '; }',
                 '.completed { font-size: 36px; font-weight: 700; }',
                 '</style></head><body>',
                 '<div class="countdown-container">',
@@ -833,15 +875,68 @@
         // Copy URL
         copyBtn.addEventListener('click', function() {
             const url = urlDisplay.textContent;
-            navigator.clipboard.writeText(url).then(function() {
-                copyBtn.textContent = '✓ Copied!';
-                copyBtn.classList.add('copied');
+            
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(function() {
+                    copyBtn.textContent = '✓ Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(function() {
+                        copyBtn.textContent = 'Copy URL';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                }).catch(function() {
+                    // If clipboard API fails, use fallback
+                    fallbackCopyTextToClipboard(url);
+                });
+            } else {
+                // Use fallback for older browsers
+                fallbackCopyTextToClipboard(url);
+            }
+        });
+
+        // Fallback copy method
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '0';
+            textArea.style.left = '0';
+            textArea.style.width = '2em';
+            textArea.style.height = '2em';
+            textArea.style.padding = '0';
+            textArea.style.border = 'none';
+            textArea.style.outline = 'none';
+            textArea.style.boxShadow = 'none';
+            textArea.style.background = 'transparent';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    copyBtn.textContent = '✓ Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(function() {
+                        copyBtn.textContent = 'Copy URL';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                } else {
+                    copyBtn.textContent = '❌ Copy failed - please select and copy manually';
+                    setTimeout(function() {
+                        copyBtn.textContent = 'Copy URL';
+                    }, 3000);
+                }
+            } catch (err) {
+                copyBtn.textContent = '❌ Copy failed - please select and copy manually';
                 setTimeout(function() {
                     copyBtn.textContent = 'Copy URL';
-                    copyBtn.classList.remove('copied');
-                }, 2000);
-            });
-        });
+                }, 3000);
+            }
+            
+            document.body.removeChild(textArea);
+        }
 
         // Initial preview
         updatePreview();
