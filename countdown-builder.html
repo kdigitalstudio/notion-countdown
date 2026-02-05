@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Widget Builder | KDigitalStudio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #E8DFF5 0%, #FCE1E4 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Ko-fi Container */
+        .kofi-container {
+            position: fixed;
+            left: calc(50% + 350px);
+            top: calc(50% - 100px);
+            transform: translateY(-50%);
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 200px;
+            z-index: 1000;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kofi-container:hover {
+            transform: translateY(-50%) translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Feedback Container */
+        .feedback-container {
+            position: fixed;
+            left: calc(50% + 350px);
+            top: calc(50% + 100px);
+            transform: translateY(-50%);
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 200px;
+            z-index: 1000;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .feedback-container:hover {
+            transform: translateY(-50%) translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .kofi-text,
+        .feedback-text {
+            font-size: 14px;
+            color: #4a5568;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .kofi-button,
+        .feedback-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #b794d5 0%, #f4c3d9 100%);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: transform 0.2s ease;
+        }
+
+        .kofi-button:hover,
+        .feedback-button:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .kofi-container {
+                position: static;
+                transform: none;
+                margin: 0 auto 20px;
+                max-width: 250px;
+            }
+            
+            .kofi-container:hover {
+                transform: translateY(-2px);
+            }
+
+            .feedback-container {
+                position: static;
+                transform: none;
+                margin: 0 auto 20px;
+                max-width: 250px;
+            }
+            
+            .feedback-container:hover {
+                transform: translateY(-2px);
+            }
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 40px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        input[type="color"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="time"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="color"] {
+            height: 50px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .datetime-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+        }
+
+        .toggle-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .toggle-item:has(input:checked) {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 40px;
+            height: 20px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e0;
+            transition: 0.3s;
+            border-radius: 20px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        .font-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .font-option {
+            padding: 20px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 24px;
+        }
+
+        .font-option:hover {
+            border-color: #cbd5e0;
+        }
+
+        .font-option.selected {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .font-option small {
+            display: block;
+            font-size: 11px;
+            margin-top: 5px;
+            color: #718096;
+        }
+
+        .align-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .align-option {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .align-option:hover {
+            border-color: #cbd5e0;
+        }
+
+        .align-option.selected {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .color-input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-input-wrapper {
+            flex: 1;
+        }
+
+        .color-hex {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-top: 5px;
+            color: #718096;
+        }
+
+        .preview-section {
+            margin: 40px 0;
+            padding: 30px;
+            background: #f7fafc;
+            border-radius: 15px;
+            text-align: center;
+            position: relative;
+        }
+
+        .preview-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #preview-frame {
+            width: 100%;
+            height: 300px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #E8DFF5 0%, #FCE1E4 100%);
+            color: #453952;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f0fff4;
+            border: 2px solid #9ae6b4;
+            border-radius: 12px;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .url-display {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 12px;
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #38a169;
+        }
+
+        .copy-btn.copied {
+            background: #2d3748;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 20px;
+            background: #edf2f7;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #4a5568;
+        }
+
+        .instructions strong {
+            color: #2d3748;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #718096;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .section-divider {
+            border-top: 2px solid #e2e8f0;
+            margin: 30px 0;
+            padding-top: 20px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #718096;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <!-- Ko-fi Support Box -->
+    <div class="kofi-container">
+        <div class="kofi-text">Are you loving it? Thank you for your support!</div>
+        <a href="https://ko-fi.com/kdigitalstudio" target="_blank" class="kofi-button">
+            ☕ Buy me a diet coke
+        </a>
+    </div>
+
+    <!-- Feedback Box -->
+    <div class="feedback-container">
+        <div class="feedback-text">Have feedback or a feature request?</div>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSfns1MuZ5_-2Ks7enwSlN4VTMFqJ4LW60yn3Ujex4Uxn0CaXw/viewform?usp=header" target="_blank" class="feedback-button">
+            📝 Share feedback
+        </a>
+    </div>
+
+    <div class="container">
+        <h1>✨ Countdown Widget Builder</h1>
+        <p class="subtitle">Create a custom countdown for your Notion workspace</p>
+
+        <form id="countdown-form">
+            <!-- Basic Settings -->
+            <div class="section-title">Settings</div>
+            
+            <div class="form-group">
+                <label for="event-name">Event Name</label>
+                <input type="text" id="event-name" placeholder="e.g., Book Launch, Wedding Day, Goal Deadline" value="" required>
+            </div>
+
+            <div class="form-group">
+                <label for="target-date">Date and Time</label>
+                <div class="datetime-row">
+                    <input type="date" id="target-date" required>
+                    <input type="time" id="target-time" value="00:00">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Show Time Units</label>
+                <div class="toggle-group">
+                    <div class="toggle-item">
+                        <span>Year</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-year">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <span>Month</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-month">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <span>Week</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-week">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <span>Day</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-day" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <span>Hour</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-hour">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <span>Minute</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-minute">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <span>Second</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-second">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Style Section -->
+            <div class="section-divider"></div>
+            <div class="section-title">Style</div>
+
+            <div class="form-group">
+                <label>Digit Font</label>
+                <div class="font-options">
+                    <div class="font-option selected" data-font="default" style="font-family: -apple-system, sans-serif;">
+                        Ag<small>Default</small>
+                    </div>
+                    <div class="font-option" data-font="serif" style="font-family: Georgia, serif;">
+                        Ag<small>Serif</small>
+                    </div>
+                    <div class="font-option" data-font="mono" style="font-family: 'Courier New', monospace;">
+                        Ag<small>Mono</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Text Alignment</label>
+                <div class="align-options">
+                    <div class="align-option" data-align="left">
+                        ⬅️ Left
+                    </div>
+                    <div class="align-option selected" data-align="center">
+                        ↔️ Center
+                    </div>
+                    <div class="align-option" data-align="right">
+                        ➡️ Right
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="text-color">Event Title Color</label>
+                <div class="color-input-group">
+                    <input type="color" id="text-color" value="#37352F">
+                    <div class="color-input-wrapper">
+                        <div class="color-hex" id="text-color-hex">#37352F</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="digit-text-color">Digit Numbers Color</label>
+                <div class="color-input-group">
+                    <input type="color" id="digit-text-color" value="#37352F">
+                    <div class="color-input-wrapper">
+                        <div class="color-hex" id="digit-text-color-hex">#37352F</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="label-text-color">Labels Color (Days, Hours, etc.)</label>
+                <div class="color-input-group">
+                    <input type="color" id="label-text-color" value="#718096">
+                    <div class="color-input-wrapper">
+                        <div class="color-hex" id="label-text-color-hex">#718096</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="bg-color">Background Color</label>
+                <div class="color-input-group">
+                    <input type="color" id="bg-color" value="#FFFFFF">
+                    <div class="color-input-wrapper">
+                        <div class="color-hex" id="bg-color-hex">#FFFFFF</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Digit Background</label>
+                <div class="toggle-group" style="grid-template-columns: 1fr;">
+                    <div class="toggle-item">
+                        <span>Show Background Behind Digits</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-digit-bg">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="digit-bg-color-group" style="display: none;">
+                <label for="digit-bg-color">Digit Background Color</label>
+                <div class="color-input-group">
+                    <input type="color" id="digit-bg-color" value="#F7FAFC">
+                    <div class="color-input-wrapper">
+                        <div class="color-hex" id="digit-bg-color-hex">#F7FAFC</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Additional Options</label>
+                <div class="toggle-group">
+                    <div class="toggle-item">
+                        <span>Stop at Zero</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="stop-at-zero" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-item">
+                        <span>Show Confetti</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="show-confetti" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">Preview</div>
+                <iframe id="preview-frame" src=""></iframe>
+            </div>
+
+            <button type="submit" class="generate-btn">Generate</button>
+        </form>
+
+        <div id="result-section" class="result-section">
+            <div class="result-label">✅ Your Countdown Widget URL:</div>
+            <div id="url-display" class="url-display"></div>
+            <button id="copy-btn" class="copy-btn">Copy URL</button>
+            
+            <div class="instructions">
+                <strong>How to add to Notion:</strong><br>
+                1. Copy the URL above<br>
+                2. In your Notion page, type <code>/embed</code><br>
+                3. Paste the URL and press Enter<br>
+                4. Your countdown will appear!
+            </div>
+        </div>
+
+        <div class="footer">
+            Made with ♥ by <a href="https://kdigitalstudio.com" target="_blank">KDigitalStudio</a>
+        </div>
+    </div>
+
+    <script>
+        // Base URL - UPDATE THIS with your hosted widget URL
+        const WIDGET_BASE_URL = 'https://yourdomain.com/countdown-widget.html';
+
+        // Get form elements
+        const form = document.getElementById('countdown-form');
+        const eventNameInput = document.getElementById('event-name');
+        const targetDateInput = document.getElementById('target-date');
+        const targetTimeInput = document.getElementById('target-time');
+        const previewFrame = document.getElementById('preview-frame');
+        const resultSection = document.getElementById('result-section');
+        const urlDisplay = document.getElementById('url-display');
+        const copyBtn = document.getElementById('copy-btn');
+
+        // Set default date to October 12, 2026
+        targetDateInput.value = '2026-10-12';
+        targetTimeInput.value = '12:00';
+
+        // Settings object
+        const settings = {
+            digitFont: 'default',
+            textAlign: 'center',
+            textColor: '#37352F',
+            digitTextColor: '#37352F',
+            labelTextColor: '#718096',
+            bgColor: '#FFFFFF',
+            showDigitBg: false,
+            digitBgColor: '#F7FAFC',
+            stopAtZero: true,
+            showConfetti: true,
+            showYear: false,
+            showMonth: false,
+            showWeek: false,
+            showDay: true,
+            showHour: false,
+            showMinute: false,
+            showSecond: false
+        };
+
+        // Font selection
+        document.querySelectorAll('.font-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.font-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                settings.digitFont = this.dataset.font;
+                updatePreview();
+            });
+        });
+
+        // Alignment selection
+        document.querySelectorAll('.align-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.align-option').forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                settings.textAlign = this.dataset.align;
+                updatePreview();
+            });
+        });
+
+        // Color pickers
+        const textColorInput = document.getElementById('text-color');
+        const bgColorInput = document.getElementById('bg-color');
+        const textColorHex = document.getElementById('text-color-hex');
+        const bgColorHex = document.getElementById('bg-color-hex');
+
+        textColorInput.addEventListener('input', function() {
+            settings.textColor = this.value;
+            textColorHex.textContent = this.value.toUpperCase();
+            updatePreview();
+        });
+
+        const digitTextColorInput = document.getElementById('digit-text-color');
+        const digitTextColorHex = document.getElementById('digit-text-color-hex');
+        
+        digitTextColorInput.addEventListener('input', function() {
+            settings.digitTextColor = this.value;
+            digitTextColorHex.textContent = this.value.toUpperCase();
+            updatePreview();
+        });
+
+        const labelTextColorInput = document.getElementById('label-text-color');
+        const labelTextColorHex = document.getElementById('label-text-color-hex');
+        
+        labelTextColorInput.addEventListener('input', function() {
+            settings.labelTextColor = this.value;
+            labelTextColorHex.textContent = this.value.toUpperCase();
+            updatePreview();
+        });
+
+        bgColorInput.addEventListener('input', function() {
+            settings.bgColor = this.value;
+            bgColorHex.textContent = this.value.toUpperCase();
+            updatePreview();
+        });
+
+        // Digit background toggle
+        const showDigitBgInput = document.getElementById('show-digit-bg');
+        const digitBgColorGroup = document.getElementById('digit-bg-color-group');
+        const digitBgColorInput = document.getElementById('digit-bg-color');
+        const digitBgColorHex = document.getElementById('digit-bg-color-hex');
+
+        showDigitBgInput.addEventListener('change', function() {
+            settings.showDigitBg = this.checked;
+            digitBgColorGroup.style.display = this.checked ? 'block' : 'none';
+            updatePreview();
+        });
+
+        digitBgColorInput.addEventListener('input', function() {
+            settings.digitBgColor = this.value;
+            digitBgColorHex.textContent = this.value.toUpperCase();
+            updatePreview();
+        });
+
+        // Toggle switches
+        document.getElementById('stop-at-zero').addEventListener('change', function() {
+            settings.stopAtZero = this.checked;
+            updatePreview();
+        });
+
+        document.getElementById('show-confetti').addEventListener('change', function() {
+            settings.showConfetti = this.checked;
+            updatePreview();
+        });
+
+        // Time unit toggles
+        ['year', 'month', 'week', 'day', 'hour', 'minute', 'second'].forEach(unit => {
+            document.getElementById('show-' + unit).addEventListener('change', function() {
+                const key = 'show' + unit.charAt(0).toUpperCase() + unit.slice(1);
+                settings[key] = this.checked;
+                updatePreview();
+            });
+        });
+
+        // Update preview on input change
+        eventNameInput.addEventListener('input', updatePreview);
+        targetDateInput.addEventListener('change', updatePreview);
+        targetTimeInput.addEventListener('change', updatePreview);
+
+        // Generate widget URL
+        function generateWidgetURL() {
+            const eventName = eventNameInput.value;
+            const targetDate = targetDateInput.value;
+            const targetTime = targetTimeInput.value;
+            
+            const params = new URLSearchParams({
+                event: eventName,
+                date: targetDate,
+                time: targetTime
+            });
+
+            // Add all settings to params
+            Object.keys(settings).forEach(key => {
+                params.append(key, settings[key]);
+            });
+
+            return WIDGET_BASE_URL + '?' + params.toString();
+        }
+
+        // Update preview
+        function updatePreview() {
+            const widgetHTML = generateWidgetHTML();
+            const blob = new Blob([widgetHTML], { type: 'text/html' });
+            const blobURL = URL.createObjectURL(blob);
+            previewFrame.src = blobURL;
+        }
+
+        // Generate widget HTML for preview
+        function generateWidgetHTML() {
+            const eventName = eventNameInput.value.replace(/'/g, "\\'").replace(/"/g, '\\"');
+            const targetDate = new Date(targetDateInput.value + 'T' + targetTimeInput.value);
+            const targetDateTime = targetDate.getTime();
+            
+            let fontFamily = '-apple-system, sans-serif';
+            if (settings.digitFont === 'serif') {
+                fontFamily = 'Georgia, serif';
+            } else if (settings.digitFont === 'mono') {
+                fontFamily = 'Courier New, monospace';
+            }
+
+            const justify = settings.textAlign === 'left' ? 'flex-start' : 
+                           settings.textAlign === 'right' ? 'flex-end' : 'center';
+
+            const html = [
+                '<!DOCTYPE html>',
+                '<html><head><meta charset="UTF-8"><style>',
+                '* { margin: 0; padding: 0; box-sizing: border-box; }',
+                'body { font-family: -apple-system, sans-serif; background: ' + settings.bgColor + '; color: ' + settings.textColor + '; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }',
+                '.countdown-container { text-align: ' + settings.textAlign + '; width: 100%; }',
+                '.event-name { font-size: 24px; font-weight: 600; margin-bottom: 30px; opacity: 0.9; color: ' + settings.textColor + '; }',
+                '.countdown { display: flex; justify-content: ' + justify + '; gap: 20px; flex-wrap: wrap; }',
+                '.time-unit { display: flex; flex-direction: column; align-items: center; min-width: 80px; }',
+                '.time-value { font-size: 48px; font-weight: 700; font-family: ' + fontFamily + '; line-height: 1; color: ' + settings.digitTextColor + ';' + (settings.showDigitBg ? ' background: ' + settings.digitBgColor + '; padding: 15px 20px; border-radius: 12px;' : '') + ' }',
+                '.time-label { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-top: 8px; font-weight: 500; color: ' + settings.labelTextColor + '; }',
+                '.completed { font-size: 36px; font-weight: 700; }',
+                '</style></head><body>',
+                '<div class="countdown-container">',
+                '<div class="event-name">' + eventName + '</div>',
+                '<div class="countdown" id="countdown"></div>',
+                '</div>',
+                '<script>',
+                'var targetDate = new Date(' + targetDateTime + ');',
+                'var settings = ' + JSON.stringify(settings) + ';',
+                'function updateCountdown() {',
+                '  var now = new Date();',
+                '  var difference = targetDate - now;',
+                '  var el = document.getElementById("countdown");',
+                '  if (difference <= 0) {',
+                '    if (settings.stopAtZero) {',
+                '      var start = settings.showConfetti ? "🎉 " : "";',
+                '      var end = settings.showConfetti ? " 🎉" : "";',
+                '      el.innerHTML = "<div class=\\"completed\\">" + start + "Event Day!" + end + "</div>";',
+                '      return;',
+                '    }',
+                '    difference = Math.abs(difference);',
+                '  }',
+                '  var totalYears = Math.floor(difference / 31536000000);',
+                '  var totalMonths = Math.floor(difference / 2592000000);',
+                '  var totalWeeks = Math.floor(difference / 604800000);',
+                '  var totalDays = Math.floor(difference / 86400000);',
+                '  var totalHours = Math.floor(difference / 3600000);',
+                '  var totalMinutes = Math.floor(difference / 60000);',
+                '  var totalSeconds = Math.floor(difference / 1000);',
+                '  var showCount = 0;',
+                '  if (settings.showYear) showCount++;',
+                '  if (settings.showMonth) showCount++;',
+                '  if (settings.showWeek) showCount++;',
+                '  if (settings.showDay) showCount++;',
+                '  if (settings.showHour) showCount++;',
+                '  if (settings.showMinute) showCount++;',
+                '  if (settings.showSecond) showCount++;',
+                '  var y, mo, w, d, h, m, s;',
+                '  if (showCount === 1) {',
+                '    y = totalYears;',
+                '    mo = totalMonths;',
+                '    w = totalWeeks;',
+                '    d = totalDays;',
+                '    h = totalHours;',
+                '    m = totalMinutes;',
+                '    s = totalSeconds;',
+                '  } else {',
+                '    var remaining = difference;',
+                '    y = Math.floor(remaining / 31536000000);',
+                '    remaining = remaining % 31536000000;',
+                '    mo = Math.floor(remaining / 2592000000);',
+                '    remaining = remaining % 2592000000;',
+                '    w = Math.floor(remaining / 604800000);',
+                '    remaining = remaining % 604800000;',
+                '    d = Math.floor(remaining / 86400000);',
+                '    remaining = remaining % 86400000;',
+                '    h = Math.floor(remaining / 3600000);',
+                '    remaining = remaining % 3600000;',
+                '    m = Math.floor(remaining / 60000);',
+                '    remaining = remaining % 60000;',
+                '    s = Math.floor(remaining / 1000);',
+                '  }',
+                '  var html = "";',
+                '  if (settings.showYear) html += "<div class=\\"time-unit\\"><span class=\\"time-value\\">" + y + "</span><span class=\\"time-label\\">Years</span></div>";',
+                '  if (settings.showMonth) html += "<div class=\\"time-unit\\"><span class=\\"time-value\\">" + mo + "</span><span class=\\"time-label\\">Months</span></div>";',
+                '  if (settings.showWeek) html += "<div class=\\"time-unit\\"><span class=\\"time-value\\">" + w + "</span><span class=\\"time-label\\">Weeks</span></div>";',
+                '  if (settings.showDay) html += "<div class=\\"time-unit\\"><span class=\\"time-value\\">" + d + "</span><span class=\\"time-label\\">Days</span></div>";',
+                '  if (settings.showHour) html += "<div class=\\"time-unit\\"><span class=\\"time-value\\">" + h + "</span><span class=\\"time-label\\">Hours</span></div>";',
+                '  if (settings.showMinute) html += "<div class=\\"time-unit\\"><span class=\\"time-value\\">" + m + "</span><span class=\\"time-label\\">Minutes</span></div>";',
+                '  if (settings.showSecond) html += "<div class=\\"time-unit\\"><span class=\\"time-value\\">" + s + "</span><span class=\\"time-label\\">Seconds</span></div>";',
+                '  el.innerHTML = html;',
+                '}',
+                'updateCountdown();',
+                'setInterval(updateCountdown, 1000);',
+                '<\/script>',
+                '</body></html>'
+            ];
+
+            return html.join('');
+        }
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const url = generateWidgetURL();
+            urlDisplay.textContent = url;
+            resultSection.classList.add('show');
+            resultSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+
+        // Copy URL
+        copyBtn.addEventListener('click', function() {
+            const url = urlDisplay.textContent;
+            
+            // Try modern clipboard API first
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(function() {
+                    copyBtn.textContent = '✓ Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(function() {
+                        copyBtn.textContent = 'Copy URL';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                }).catch(function() {
+                    // If clipboard API fails, use fallback
+                    fallbackCopyTextToClipboard(url);
+                });
+            } else {
+                // Use fallback for older browsers
+                fallbackCopyTextToClipboard(url);
+            }
+        });
+
+        // Fallback copy method
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.top = '0';
+            textArea.style.left = '0';
+            textArea.style.width = '2em';
+            textArea.style.height = '2em';
+            textArea.style.padding = '0';
+            textArea.style.border = 'none';
+            textArea.style.outline = 'none';
+            textArea.style.boxShadow = 'none';
+            textArea.style.background = 'transparent';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    copyBtn.textContent = '✓ Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(function() {
+                        copyBtn.textContent = 'Copy URL';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                } else {
+                    copyBtn.textContent = '❌ Copy failed - please select and copy manually';
+                    setTimeout(function() {
+                        copyBtn.textContent = 'Copy URL';
+                    }, 3000);
+                }
+            } catch (err) {
+                copyBtn.textContent = '❌ Copy failed - please select and copy manually';
+                setTimeout(function() {
+                    copyBtn.textContent = 'Copy URL';
+                }, 3000);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // Initial preview
+        updatePreview();
+    </script>
+</body>
+</html>
